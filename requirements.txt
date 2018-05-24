@@ -4,7 +4,7 @@ django-confy==1.0.4
 django-bootstrap3==10.0.1
 django-auth-ldap==1.2.8
 openpyxl==2.4.2
-django-reversion==1.10
+django-reversion==2.0.13
 pytz>=2016.6.1
 django-timezone-field==2.0
 requests==2.11
@@ -31,7 +31,7 @@ drf-yasg==1.7.4
 
 
 # dbca for SSO login
-https://static.dbca.wa.gov.au/static/py/dpaw-utils/dist/dpaw-utils-0.3a9.tar.gz
+git+https://github.com/dbca-wa/dpaw-utils.git@0.4.1
 
 # TODO: to get rid of
 django-grappelli==2.8.2

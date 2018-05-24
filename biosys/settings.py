@@ -70,7 +70,7 @@ PROJECT_APPS = (
 
 INSTALLED_APPS += PROJECT_APPS
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -80,9 +80,15 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.gzip.GZipMiddleware',
-    'dpaw_utils.middleware.SSOLoginMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-)
+    'main.middlewares.audit.AuditMiddleware',
+]
+
+EXTRA_MIDDLEWARE = env('EXTRA_MIDDLEWARE', [
+    'dpaw_utils.middleware.SSOLoginMiddleware'
+])
+
+MIDDLEWARE += EXTRA_MIDDLEWARE
 
 ROOT_URLCONF = 'biosys.urls'
 
