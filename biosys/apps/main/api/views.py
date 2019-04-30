@@ -215,7 +215,7 @@ class FormViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.FormSerializer
     queryset = models.Form.objects.all().distinct()
-    filter_fields = ('id', 'name', 'dataset', 'dataset__project', 'dataset__project',)
+    filter_fields = ('id', 'name', 'dataset', 'dataset__project', 'dataset__name',)
 
 
 class DatasetViewSet(viewsets.ModelViewSet):
