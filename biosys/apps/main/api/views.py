@@ -212,7 +212,7 @@ class SiteViewSet(viewsets.ModelViewSet):
 
 
 class FormViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (IsAuthenticated, DRYPermissions)
+    permission_classes = (IsAuthenticated,)
     serializer_class = serializers.FormSerializer
     queryset = models.Form.objects.all().distinct()
 
