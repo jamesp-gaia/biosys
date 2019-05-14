@@ -30,6 +30,7 @@ url_patterns = [
     url(r'datasets?/(?P<pk>\d+)/upload-records/?', api_views.DatasetUploadRecordsView.as_view(),
         name='dataset-upload'),
     url(r'statistics/?', api_views.StatisticsView.as_view(), name="statistics"),
+    url(r'forms/hierarchy/?', api_views.FormStructureView.as_view(), name="form_hierarchy"),
     url(r'whoami/?', api_views.WhoamiView.as_view(), name="whoami"),
     url(r'species/?', api_views.SpeciesView.as_view(), name="species"),
     url(r'logout/?', api_views.LogoutView.as_view(), name="logout"),
