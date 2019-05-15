@@ -226,7 +226,7 @@ def form_structure(request):
     forms = models.Form.objects.all()
     print('top level forms')
     print(forms)
-    if (project is not         None):
+    if (project is not None):
         #return Response(data='Project parameter required', status=status.HTTP_200_OK)
         forms = models.Form.objects.filter(dataset__project=project)
         print('after filter forms')
