@@ -253,11 +253,11 @@ def form_structure(request):
                     form_json[parent.dataset.pk] = parent_serialiser.data
                     # embed table schema for convenience
                     form_json[parent.dataset.pk]['table_schema'] = parent.dataset.data_package['resources'][0]['schema']
-
-            if parent_dataset.pk in form_json and 'children' not in form_json[parent_dataset.pk]:
-                form_json[parent_dataset.pk]['children'] = []
-            serialiser.data['table_schema'] = form.dataset.data_package['resources'][0]['schema']
-            form_json[parent_dataset.pk]['children'].append(serialiser.data)
+            else:
+                if 'children' not in form_json[parent_dataset.pk]:
+                    form_json[parent_dataset.pk]['children'] = []
+                serialiser.data['table_schema'] = form.dataset.data_package['resources'][0]['schema']
+                form_json[parent_dataset.pk]['children'].append(serialiser.data)
 
         # note by DATASET pk for efficiency in identifying parents
         form_json[form.dataset.pk] = serialiser.data
