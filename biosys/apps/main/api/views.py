@@ -245,7 +245,7 @@ def form_structure(request):
         print(serialiser.data)
 
         if parent_dataset is not None:
-            if form_json[parent_dataset.pk] is None:
+            if parent_dataset.pk not in form_json:
                 parent = models.Form.filter(dataset=parent_dataset)
                 parent_serialiser = serializers.FormSerializer(parent)
                 # note by DATASET pk for efficiency in identifying parents
@@ -253,7 +253,7 @@ def form_structure(request):
                 # embed table schema for convenience
                 form_json[parent.dataset.pk]['table_schema'] = parent.dataset.data_package['resources'][0]['schema']
 
-            if form_json[parent_dataset.pk]['children'] is None:
+            if 'children' not in form_json[parent_dataset.pk]E:
                 form_json[parent_dataset.pk]['children'] = []
             serialiser.data['table_schema'] = form.dataset.data_package['resources'][0]['schema']
             form_json[parent_dataset.pk]['children'].append(serialiser.data)
