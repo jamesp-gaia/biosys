@@ -224,15 +224,25 @@ def form_structure(request):
     print('squeedle')
     project = request.GET.get('project', None)
     forms = models.Form.objects.all()
-    if (project is None):
+    print('top level forms')
+    print(forms)
+    if (project is not         None):
         #return Response(data='Project parameter required', status=status.HTTP_200_OK)
         forms = models.Form.objects.filter(dataset__project=project)
+        print('after filter forms')
+        print(forms)
     form_json = {}
     # form_serialiser = serializers.FormSerializer()
     #forms = models.Form.objects.filter(dataset__project=project)
     for form in forms:
+        print('next form in iteration:')
+        print(form)
         parent_dataset = form.dataset.get_parent_dataset
+        print('do we haf parent?')
+        print(parent_dataset)
         serialiser = serializers.FormSerializer(form)
+        print('serialised form')
+        print(serialiser.data)
 
         if parent_dataset is not None:
             if form_json[parent_dataset.pk] is None:
@@ -252,6 +262,8 @@ def form_structure(request):
         form_json[form.dataset.pk] = serialiser.data
         # embed table schema for convenience
         form_json[form.dataset.pk]['table_schema'] = form.dataset.data_package['resources'][0]['schema']
+        print('form json after writy')
+        print(form_json)
     return Response(data=form_json, status=status.HTTP_200_OK)
 
 # helper view for hierarchical (1 level) form structures
