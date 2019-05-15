@@ -16,6 +16,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
 from rest_framework.permissions import IsAuthenticated, BasePermission, SAFE_METHODS
 from rest_framework.views import APIView, Response
 from rest_framework.settings import import_from_string
+from rest_framework.decorators import api_view
 
 from main import models, constants
 from main.api import serializers
@@ -218,19 +219,55 @@ class FormViewSet(viewsets.ReadOnlyModelViewSet):
     filter_fields = ('id', 'name', 'dataset', 'dataset__project', 'dataset__name',)
 
 
+@api_view()
+def form_structure(request):
+    print('squeedle')
+    project = request.GET.get('project', None)
+    forms = models.Form.objects.all()
+    if (project is None):
+        #return Response(data='Project parameter required', status=status.HTTP_200_OK)
+        forms = models.Form.objects.filter(dataset__project=project)
+    form_json = {}
+    # form_serialiser = serializers.FormSerializer()
+    #forms = models.Form.objects.filter(dataset__project=project)
+    for form in forms:
+        parent_dataset = form.dataset.get_parent_dataset
+        serialiser = serializers.FormSerializer(form)
+
+        if parent_dataset is not None:
+            if form_json[parent_dataset.pk] is None:
+                parent = models.Form.filter(dataset=parent_dataset)
+                parent_serialiser = serializers.FormSerializer(parent)
+                # note by DATASET pk for efficiency in identifying parents
+                form_json[parent.dataset.pk] = parent_serialiser.data
+                # embed table schema for convenience
+                form_json[parent.dataset.pk]['table_schema'] = parent.dataset.data_package['resources'][0]['schema']
+
+            if form_json[parent_dataset.pk]['children'] is None:
+                form_json[parent_dataset.pk]['children'] = []
+            serialiser.data['table_schema'] = form.dataset.data_package['resources'][0]['schema']
+            form_json[parent_dataset.pk]['children'].append(serialiser.data)
+
+        # note by DATASET pk for efficiency in identifying parents
+        form_json[form.dataset.pk] = serialiser.data
+        # embed table schema for convenience
+        form_json[form.dataset.pk]['table_schema'] = form.dataset.data_package['resources'][0]['schema']
+    return Response(data=form_json, status=status.HTTP_200_OK)
+
 # helper view for hierarchical (1 level) form structures
 class FormStructureView(APIView):
     permission_classes = (IsAuthenticated, ProjectPermission)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
+        print('squeedle')
         project = request.get('project', None)
         if (project is None):
-            return Response(data='Project parameter required', status=status.HTTP_400_BAD_REQUEST)
+            return Response(data='Project parameter required', status=status.HTTP_200_OK)
         form_json = {}
         #form_serialiser = serializers.FormSerializer()
-        forms = models.Form.objects.filter(dateset__project=project)
+        forms = models.Form.objects.filter(dataset__project=project)
         for form in forms:
-            parent_dataset = form.dateset.get_parent_dataset
+            parent_dataset = form.dataset.get_parent_dataset
             serialiser = serializers.FormSerializer(form)
 
             if parent_dataset is not None:
@@ -251,6 +288,7 @@ class FormStructureView(APIView):
             form_json[form.dataset.pk] = serialiser.data
             # embed table schema for convenience
             form_json[form.dataset.pk]['table_schema'] = form.dataset.data_package['resources'][0]['schema']
+        return Response(data=form_json, status=status.HTTP_200_OK)
 
 
 class DatasetViewSet(viewsets.ModelViewSet):
