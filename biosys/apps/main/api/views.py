@@ -247,7 +247,7 @@ def form_structure(request):
         if parent_dataset is not None:
             if parent_dataset.pk not in form_json:
                 parent = models.Form.objects.filter(dataset=parent_dataset).first()
-                if parent is not None""
+                if parent is not None:
                     parent_serialiser = serializers.FormSerializer(parent)
                     # note by DATASET pk for efficiency in identifying parents
                     form_json[parent.dataset.pk] = parent_serialiser.data
