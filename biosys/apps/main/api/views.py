@@ -225,8 +225,6 @@ def form_structure(request):
     forms = models.Form.objects.all()
     projects = models.Project.objects.all()
 
-    projects = models.Project.objects.filter(pk=2)
-
     if (project is not None):
 
         forms = models.Form.objects.filter(dataset__project=project)
