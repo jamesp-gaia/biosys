@@ -43,6 +43,9 @@ class DatasetFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Dataset
 
+class FormFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Form
 
 CHUBBY_BAT_IMAGE_PATH = path.join(path.dirname(__file__), 'data/chubby-bat.png')
 
