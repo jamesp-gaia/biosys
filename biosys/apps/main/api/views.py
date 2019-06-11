@@ -269,8 +269,10 @@ def form_structure(request):
 
                     if 'children' not in form_json[parent_dataset.pk]:
                         form_json[parent_dataset.pk]['children'] = []
-                    serialiser.data['table_schema'] = form.dataset.data_package['resources'][0]['schema']
-                    form_json[parent_dataset.pk]['children'].append(serialiser.data)
+
+                    append_data = serialiser.data
+                    append_data['table_schema'] = form.dataset.data_package['resources'][0]['schema']
+                    form_json[parent_dataset.pk]['children'].append(append_data)
 
         else:
 
