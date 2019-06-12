@@ -245,21 +245,14 @@ def form_structure(request):
         if form.dataset.pk in form_json:
             # a parent we have already found
             continue
-        print('considering form:')
-        print(form)
-        print('parent')
 
         parent_dataset = form.dataset.get_parent_dataset
-        print(parent_dataset)
         serialiser = serializers.FormSerializer(form)
 
         if parent_dataset is not None:
-            print('in parent section')
             if parent_dataset.pk not in form_json:
-                print('parent not in json yet')
                 parent = models.Form.objects.filter(dataset=parent_dataset).first()
-                print('parent:')
-                print(parent)
+
                 if parent is not None:
                     parent_serialiser = serializers.FormSerializer(parent)
                     # note by DATASET pk for efficiency in identifying parents
@@ -282,47 +275,6 @@ def form_structure(request):
             form_json[form.dataset.pk]['table_schema'] = form.dataset.data_package['resources'][0]['schema']
 
     return Response(data=form_json, status=status.HTTP_200_OK)
-
-# helper view for hierarchical (1 level) form structures
-# class FormStructureView(APIView):
-#     permission_classes = (IsAuthenticated, ProjectPermission)
-#
-#     def get(self, request):
-#         print('squeedle')
-#         project = request.get('project', None)
-#         if (project is None):
-#             return Response(data='Project parameter required', status=status.HTTP_200_OK)
-#         form_json = {}
-#         #form_serialiser = serializers.FormSerializer()
-#         forms = models.Form.objects.filter(dataset__project=project)
-#         for form in forms:
-#             parent_dataset = form.dataset.get_parent_dataset
-#             serialiser = serializers.FormSerializer(form)
-#
-#             if parent_dataset is not None:
-#                 print('in parent section')
-#                 if form_json[parent_dataset.pk] is None:
-#                     print('parent not already in json')
-#                     parent = models.Form.filter(dataset=parent_dataset)
-#                     print('parent form:')
-#                     print(parent)
-#                     parent_serialiser = serializers.FormSerializer(parent)
-#                     # note by DATASET pk for efficiency in identifying parents
-#                     form_json[parent.dataset.pk] = parent_serialiser.data
-#                     # embed table schema for convenience
-#                     form_json[parent.dataset.pk]['table_schema'] = parent.dataset.data_package['resources'][0]['schema']
-#
-#                 if form_json[parent_dataset.pk]['children'] is None:
-#                     print('initialising child array')
-#                     form_json[parent_dataset.pk]['children'] = []
-#                 serialiser.data['table_schema'] = form.dataset.data_package['resources'][0]['schema']
-#                 form_json[parent_dataset.pk]['children'].append(serialiser.data)
-#
-#             # note by DATASET pk for efficiency in identifying parents
-#             form_json[form.dataset.pk] = serialiser.data
-#             # embed table schema for convenience
-#             form_json[form.dataset.pk]['table_schema'] = form.dataset.data_package['resources'][0]['schema']
-#         return Response(data=form_json, status=status.HTTP_200_OK)
 
 
 class DatasetViewSet(viewsets.ModelViewSet):
