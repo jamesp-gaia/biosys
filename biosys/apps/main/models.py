@@ -308,7 +308,7 @@ class Site(models.Model):
 @python_2_unicode_compatible
 class Form(models.Model):
     name = models.CharField(max_length=200, null=False, blank=False)
-    layout = JSONField()
+    layout = JSONField(null=True, blank=True)
     dataset = models.ForeignKey('Dataset', null=False, blank=False)
 
     def __str__(self):
