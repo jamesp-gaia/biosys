@@ -237,7 +237,12 @@ def form_structure(request):
         project_sites = models.Site.objects.filter(project=project)
         site_list = []
         for site in project_sites:
-            site_list.append({site.pk: site.name})
+            if site.name is not None and site.name is not '':
+                name = site.name + ' (' + site.code + ')'
+            else:
+                name = site.code
+
+            site_list.append({site.pk: name})
         sites_json[project.pk] = site_list
     form_json['sites'] = sites_json
 
