@@ -13,6 +13,10 @@ branches:
         - uat
         - staging
         - production
+        - oeh_uat
+        - oeh_production
+        - slug_uat
+        - slug_production
 env:
     global:
         - SECRET_KEY=SecretKeyForTravis
@@ -30,13 +34,50 @@ script:
     - python manage.py test
 
 deploy:
-  provider: elasticbeanstalk
-  access_key_id: $AWS_ACCESS_KEY
-  secret_access_key:
-    secure: "$AWS_SECRET_KEY"
-  region: "ap-southeast-2"
-  app: "eb-biosys"
-  env: "eb-biosys-uat"
-  bucket_name: $AWS_BUCKET_NAME
-  on:
-    branch: uat
+  - provider: elasticbeanstalk
+    access_key_id: $AWS_OEH_ACCESS_KEY
+    secret_access_key:
+      secure: $AWS_OEH_SECRET_KEY
+    region: "ap-southeast-2"
+    app: "biosys"
+    env: "biosys-uat"
+    bucket_name: elasticbeanstalk-ap-southeast-2-119102954308
+    on:
+      branch: oeh_uat
+      python: "3.6"
+
+  - provider: elasticbeanstalk
+    access_key_id: $AWS_OEH_ACCESS_KEY
+    secret_access_key:
+      secure: $AWS_OEH_SECRET_KEY
+    region: "ap-southeast-2"
+    app: "biosys"
+    env: "biosys-production"
+    bucket_name: elasticbeanstalk-ap-southeast-2-119102954308
+    on:
+      branch: oeh_production
+      python: "3.6"
+
+  - provider: elasticbeanstalk
+    access_key_id: $AWS_SLUG_ACCESS_KEY
+    secret_access_key:
+      secure: $AWS_SLUG_SECRET_KEY
+    region: "ap-southeast-2"
+    app: "biosys"
+    env: "biosys-uat"
+    bucket_name: elasticbeanstalk-ap-southeast-2-496139929044
+    on:
+      branch: slug_uat
+      python: "3.6"
+
+  - provider: elasticbeanstalk
+    access_key_id: $AWS_SLUG_ACCESS_KEY
+    secret_access_key:
+      secure: $AWS_SLUG_SECRET_KEY
+    region: "ap-southeast-2"
+    app: "biosys"
+    env: "biosys-production"
+    bucket_name: elasticbeanstalk-ap-southeast-2-496139929044
+    on:
+      branch: slug_production
+      python: "3.6"

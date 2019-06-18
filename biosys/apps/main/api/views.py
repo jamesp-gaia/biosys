@@ -16,7 +16,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
 from rest_framework.permissions import IsAuthenticated, BasePermission, SAFE_METHODS
 from rest_framework.views import APIView, Response
 from rest_framework.settings import import_from_string
-from rest_framework.decorators import api_view
+import rest_framework.authtoken.views as auth_views
 
 from main import models, constants
 from main.api import serializers
@@ -24,22 +24,31 @@ from main.api import filters
 from main.api.helpers import to_bool
 from main.api.uploaders import SiteUploader, FileReader, RecordCreator, DataPackageBuilder
 from main.api.validators import get_record_validator_for_dataset
-from main.models import Project, Site, Dataset, Record
+from main.models import Project, Site, Dataset, Record, Program
 from main.utils_auth import is_admin, can_create_user
 from main.api.exporters import DefaultExporter
 from main.utils_http import WorkbookResponse, CSVFileResponse
 from main.utils_species import NoSpeciesFacade
 from main.utils_misc import search_json_fields, order_by_json_field
-
+from main.api.throttling import UserLoginRateThrottle
 
 logger = logging.getLogger(__name__)
+
+
+def is_data_engineer(user):
+    """
+    Returns true if the given user is a data engineer of any program
+    :param user:
+    :return: boolean
+    """
+    return user.is_authenticated and Program.objects.filter(data_engineers__in=[user]).count() > 0
 
 
 class UserPermission(BasePermission):
     """
     Rules:
-    Get: authenticated
-    Update: admin or user itself
+    Get: admin or data engineer (no user leakage for authenticated only)
+    Update/Patch: admin or user itself
     Create: admin
     Delete: forbidden through API
     """
@@ -47,8 +56,10 @@ class UserPermission(BasePermission):
     def has_permission(self, request, view):
         """
         Global level.
-        Reject Delete and Create for non admin.
-        The rest will be checked at object level (below)
+        GET: Only admins and data_engineers
+        POST: depends if the server allows public registration or not
+        DELETE: forbidden
+        UPDATE/PATCH: handle by has_object_permission below. Admin or user itself.
         """
         method = request.method
         user = request.user
@@ -56,7 +67,10 @@ class UserPermission(BasePermission):
             return False
         elif method == 'POST':
             return can_create_user(user)
+        elif method == 'GET':
+            return is_admin(user) or is_data_engineer(user)
         else:
+            # UPDATE and PATCH permission are sorted in has_object_permission() below.
             return user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
@@ -66,6 +80,10 @@ class UserPermission(BasePermission):
         """
         is_owner = (request.user == obj)
         return request.method in SAFE_METHODS or is_admin(request.user) or is_owner
+
+
+class ObtainAuthToken(auth_views.ObtainAuthToken):
+    throttle_classes = (UserLoginRateThrottle,)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -284,7 +302,8 @@ class DatasetRecordsPermission(BasePermission):
         return \
             request.method in SAFE_METHODS \
             or is_admin(user) \
-            or (hasattr(view, 'dataset') and view.dataset and (view.dataset.is_custodian(user) or view.dataset.is_data_engineer(user)))
+            or (hasattr(view, 'dataset') and view.dataset and (
+                        view.dataset.is_custodian(user) or view.dataset.is_data_engineer(user)))
 
 
 class SpeciesMixin(object):
