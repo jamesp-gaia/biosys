@@ -251,14 +251,7 @@ class FormHierarchyView(APIView):
         sites_json = {}
         for project in projects:
             project_sites = models.Site.objects.filter(project=project)
-            site_list = []
-            for site in project_sites:
-                if site.name is not None and site.name is not '':
-                    name = site.name + ' (' + site.code + ')'
-                else:
-                    name = site.code
-                site_list.append({site.pk: name})
-            sites_json[project.pk] = site_list
+            sites_json[project.pk] =  [{s.pk: s.code} for s in project_sites]
         form_json['sites'] = sites_json
         for form in forms:
             if form.dataset.pk in form_json:

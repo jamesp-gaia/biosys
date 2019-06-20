@@ -189,8 +189,8 @@ class TestFormEndpoint(helpers.BaseUserTestCase):
 
         response_sites = response.data['sites']
         expected_site_response = {
-            self.project_1.pk: [{self.site_1.pk:(self.site_1.name+' ('+self.site_1.code+')')}],
-            self.project_2.pk: [{self.site_2.pk:(self.site_2.name+' ('+self.site_2.code+')')}]
+            self.project_1.pk: [{self.site_1.pk:self.site_1.code}],
+            self.project_2.pk: [{self.site_2.pk:self.site_2.code}]
         }
         self.assertEqual(response_sites, expected_site_response)
 
