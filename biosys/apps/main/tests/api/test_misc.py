@@ -193,7 +193,8 @@ class TestFormEndpoint(helpers.BaseUserTestCase):
             self.project_2.pk: [{self.site_2.pk:self.site_2.code}]
         }
         self.assertEqual(response_sites, expected_site_response)
-
+        print('=============================')
+        print(response.data)
         form_response = response.data[self.project.pk]
         self.assertEqual(form_response['name'], self.form.name)
         self.assertEqual(form_response['layout'], self.form.layout)
